@@ -36,7 +36,10 @@
     #world-map { height:315px; width:100%; z-index:0; }
     .leaflet-container { background:#a6cdd3; }
     .leaflet-control-attribution { font-size:10px !important; }
-    .map-pin { width:14px; height:14px; border:3px solid white; border-radius:50%; background:#00bccb; box-shadow:0 0 0 4px #00d9e555,0 2px 8px #102d48a0; }
+    .map-pin { display:block; width:14px; height:14px; border:2px solid white; border-radius:50%; background:var(--pin-color,#00bccb); box-shadow:0 1px 6px #102d4880; }
+    .map-legend { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px 12px; margin-top:12px; }
+    .map-legend-item { display:flex; min-width:0; align-items:center; gap:7px; color:var(--petrol); font-size:11px; line-height:1.2; }
+    .map-legend-dot { width:10px; height:10px; flex:0 0 10px; border:1px solid #fff; border-radius:50%; box-shadow:0 0 0 1px #102d4833; }
     .stat-bars span { display:block; height:7px; border-radius:10px; background:#00bfce; }
     .timeline { border-left:2px solid #00bfce; }
     .footer-rule { border-top:1px solid #dce7eb; }
@@ -92,6 +95,7 @@
       .hero-grid { grid-template-columns:1fr; gap:23px; }
       .display-title { font-size:clamp(2.15rem,8vw,3.1rem) !important; }
       #world-map { height:260px; }
+      .map-legend { grid-template-columns:repeat(2,minmax(0,1fr)); }
     }
     @media(prefers-reduced-motion:reduce) {
       *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
@@ -280,8 +284,11 @@
          <p data-template-id="world-subtitle" class="canva-text max-w-2xl m-0" style="color: rgb(83, 97, 110); font-weight: 400; font-style: normal; font-size: 20px;">Lições internacionais para a abertura do mercado brasileiro</p>
         </div>
         <div class="hero-grid mb-9">
-         <div class="map-wrap">
-          <div id="world-map" role="img" aria-label="Mapa-múndi com marcadores no Reino Unido, na Austrália e no Brasil"></div>
+         <div>
+          <div class="map-wrap">
+           <div id="world-map" role="img" aria-label="Mapa-múndi com pontos coloridos nos países listados na legenda"></div>
+          </div>
+          <div id="world-map-legend" class="map-legend" aria-label="Legenda dos países"></div>
          </div>
          <div>
           <p data-template-id="world-map-label" class="canva-text eyebrow font-bold mb-3" style="color: rgb(0, 126, 142); font-weight: 400; font-style: normal; font-size: 12px;">EXPERIÊNCIAS PELO MUNDO</p>
@@ -379,17 +386,50 @@
   if (window.lucide) lucide.createIcons();
 
   if (window.L) {
-    map = L.map('world-map', { scrollWheelZoom:false, zoomControl:true, minZoom:1, maxZoom:6 }).fitBounds([[-35.28,-47.88],[51.5,149.13]], { padding:[28,28], maxZoom:2 });
+    map = L.map('world-map', { scrollWheelZoom:false, zoomControl:true, minZoom:1, maxZoom:6 });
     map.attributionControl.setPrefix(false);
     L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
       subdomains:'abc',
       maxZoom:19,
       attribution:'Fundo de mapa &copy; <a href="https://www.openstreetmap.fr/" target="_blank" rel="noopener noreferrer">OpenStreetMap France</a> · Dados &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">contribuidores OpenStreetMap</a>'
     }).addTo(map);
-    const icon = L.divIcon({ className:'', html:'<div class="map-pin"></div>', iconSize:[18,18], iconAnchor:[9,9] });
-    L.marker([51.5,-0.12], {icon}).addTo(map).bindPopup('Reino Unido');
-    L.marker([-35.28,149.13], {icon}).addTo(map).bindPopup('Austrália');
-    L.marker([-15.79,-47.88], {icon}).addTo(map).bindPopup('Brasil');
+    const countries = [
+      { name:'Alemanha', coords:[52.52,13.405], color:'#e63946' },
+      { name:'Austrália', coords:[-35.28,149.13], color:'#4361ee' },
+      { name:'Áustria', coords:[48.208,16.373], color:'#2a9d8f' },
+      { name:'Bélgica', coords:[50.85,4.352], color:'#f4a261' },
+      { name:'Bulgária', coords:[42.697,23.322], color:'#9b5de5' },
+      { name:'Canadá', coords:[45.4215,-75.6972], color:'#e76f51' },
+      { name:'Dinamarca', coords:[55.6761,12.5683], color:'#0077b6' },
+      { name:'Espanha', coords:[40.4168,-3.7038], color:'#f72585' },
+      { name:'Estônia', coords:[59.437,24.7536], color:'#588157' },
+      { name:'Finlândia', coords:[60.1699,24.9384], color:'#fca311' },
+      { name:'França', coords:[48.8566,2.3522], color:'#7b2cbf' },
+      { name:'Grécia', coords:[37.9838,23.7275], color:'#00b4d8' },
+      { name:'Irlanda', coords:[53.3498,-6.2603], color:'#ef476f' },
+      { name:'Itália', coords:[41.9028,12.4964], color:'#06d6a0' },
+      { name:'Japão', coords:[35.6762,139.6503], color:'#8338ec' },
+      { name:'Noruega', coords:[59.9139,10.7522], color:'#ff006e' },
+      { name:'Nova Zelândia', coords:[-41.2866,174.7756], color:'#3a86ff' },
+      { name:'Países Baixos', coords:[52.3676,4.9041], color:'#fb5607' },
+      { name:'Portugal', coords:[38.7223,-9.1393], color:'#6a994e' },
+      { name:'Reino Unido', coords:[51.5074,-0.1278], color:'#bc6c25' },
+      { name:'República Tcheca', coords:[50.0755,14.4378], color:'#00a896' },
+      { name:'Romênia', coords:[44.4268,26.1025], color:'#d81159' },
+      { name:'Singapura', coords:[1.3521,103.8198], color:'#118ab2' },
+      { name:'Suécia', coords:[59.3293,18.0686], color:'#6f2dbd' }
+    ];
+    const markers = [];
+    const legend = document.getElementById('world-map-legend');
+    countries.forEach(country => {
+      const icon = L.divIcon({ className:'', html:`<span class="map-pin" style="--pin-color:${country.color}"></span>`, iconSize:[18,18], iconAnchor:[9,9] });
+      markers.push(L.marker(country.coords, {icon}).addTo(map).bindPopup(country.name));
+      const item = document.createElement('span');
+      item.className = 'map-legend-item';
+      item.innerHTML = `<i class="map-legend-dot" style="background:${country.color}" aria-hidden="true"></i><span>${country.name}</span>`;
+      legend.appendChild(item);
+    });
+    map.fitBounds(L.featureGroup(markers).getBounds(), { padding:[24,24], maxZoom:2 });
   }
   const infographicFrame = document.getElementById('energy-infographic-frame');
   infographicFrame.addEventListener('load', () => {
