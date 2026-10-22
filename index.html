@@ -445,10 +445,10 @@
   if (window.L) {
     map = L.map('world-map', { scrollWheelZoom:false, zoomControl:true, minZoom:1, maxZoom:6 }).fitBounds([[-35.28,-47.88],[51.5,149.13]], { padding:[28,28], maxZoom:2 });
     map.attributionControl.setPrefix(false);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      subdomains:'abcd',
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+      subdomains:'abc',
       maxZoom:19,
-      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>'
+      attribution:'Fundo de mapa &copy; <a href="https://www.openstreetmap.fr/" target="_blank" rel="noopener noreferrer">OpenStreetMap France</a> · Dados &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">contribuidores OpenStreetMap</a>'
     }).addTo(map);
     const icon = L.divIcon({ className:'', html:'<div class="map-pin"></div>', iconSize:[18,18], iconAnchor:[9,9] });
     L.marker([51.5,-0.12], {icon}).addTo(map).bindPopup('Reino Unido');
